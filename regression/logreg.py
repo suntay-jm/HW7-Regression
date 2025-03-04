@@ -83,7 +83,9 @@ class BaseRegressor():
 
             # Update iteration
             iteration += 1
-    
+
+
+
     def plot_loss_history(self):
 
         # Make sure training has been run
@@ -129,7 +131,11 @@ class LogisticRegressor(BaseRegressor):
         Returns: 
             The predicted labels (y_pred) for given X.
         """
-        pass
+        # applying linear transformation
+        z = np.dot(X, self.W) # computing dot product (feature values dot weights)
+
+        # applying sigmoid function to dot product of features and weights (aka z)
+        return 1 / (1 + np.exp(-z)) # parantheses == e^-z
     
     def loss_function(self, y_true, y_pred) -> float:
         """
@@ -143,8 +149,16 @@ class LogisticRegressor(BaseRegressor):
         Returns: 
             The mean loss (a single number).
         """
-        pass
-        
+        epsilon = 1e-10 # small value to avoid log(0) == undefined
+
+        # keeping predictions between 0 - 1
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon) # np.clip keeps all values within the range (epsilon: 1 - epsilon)
+
+        # calculating mean loss
+        loss = -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
+        return loss # measuring how bad the predictions are
+
     def calculate_gradient(self, y_true, X) -> np.ndarray:
         """
         TODO: Calculate the gradient of the loss function with respect to the given data. This
@@ -157,4 +171,19 @@ class LogisticRegressor(BaseRegressor):
         Returns: 
             Vector of gradients.
         """
-        pass
+        y_pred = self.make_prediction(X) # predicted probabilities
+
+        # calculating error
+        error = y_pred - y_true # predicted - true labels
+
+        # computing gradient (how much the model needs to adjust the weights to improve)
+        grad = (1 / X.shape[0]) * np.dot(X.T, error) # .shape[0] gets nrows (# data points) and dividing by .shape[0] makes sure the update is averaged
+
+        """
+        ex) if X.shape[0] = 4 and error = np.array([0.1, -0.2, 0.05, -0.1])
+        grad = (1 / 4) * np.dot(X.T, error) -- important to note that X is transposed for dimension matching (X = (N,D) | X.T = (D,N))
+        (D,N) * (y_pred - y_true) * (N,1) --> dimension match! 
+        """
+
+        # returning vector of gradients
+        return grad # direction to adjust weight
