@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 from regression.logreg import LogisticRegressor
 
-df = pd.read_csv("/Users/mattsuntay/Desktop/algo/HW7-Regression/data/nsclc.csv")
+df = pd.read_csv("./data/nsclc.csv") # Q, this is how i path, to make it work on my machine, but if i push to git, should i change this?
 
 
 # dropping any non-numeric columns
@@ -103,3 +103,4 @@ def test_prediction_edge_cases():
         model.make_prediction(wrong_shape_X)
     except ValueError:
         pass  # Expected behavior
+
